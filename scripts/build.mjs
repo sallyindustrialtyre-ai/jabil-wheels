@@ -1,0 +1,5 @@
+import fs from 'node:fs';import path from 'node:path';
+const root=process.cwd(),output=path.resolve(root,'dist');if(output!==path.join(root,'dist'))throw Error('Unexpected output path');
+const copyTree=(src,dest)=>{fs.mkdirSync(dest,{recursive:true});for(const entry of fs.readdirSync(src,{withFileTypes:true})){const a=path.join(src,entry.name),b=path.join(dest,entry.name);if(entry.isDirectory())copyTree(a,b);else if(entry.isFile())fs.copyFileSync(a,b);else throw Error('Unsupported source entry')}};copyTree('site',output);
+const domain=process.env.SITE_URL||process.env.URL;if(domain){const u=new URL(domain);if(!['http:','https:'].includes(u.protocol))throw Error('Invalid SITE_URL');const origin=u.origin;const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(d,e.name)):[path.join(d,e.name)]);for(const f of walk(output).filter(f=>/\.(html|xml|txt)$/.test(f))){const text=fs.readFileSync(f,'utf8').replaceAll('https://equipment-wheel-supply.joylee624.chatgpt.site',origin);fs.writeFileSync(f,text)}}
+console.log('Built static site in dist. Enable Netlify form detection and deploy to accept submissions.');
