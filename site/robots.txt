@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /
+# Review version: remove restriction after verified company/product data and public launch.
