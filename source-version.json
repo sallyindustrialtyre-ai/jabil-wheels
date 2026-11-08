@@ -1,0 +1,7 @@
+{
+  "originalVersion": 9,
+  "originalCommit": "8dd1c3e9a462567f8beed93aa928cd6f06ceefd0",
+  "exportedAt": "2026-11-08T05:52:47.458Z",
+  "edition": "Netlify static site + Netlify Forms",
+  "backend": "Original Cloudflare D1/R2/admin backend is supplied in the separate original source archive; it is not migrated in this edition."
+}
