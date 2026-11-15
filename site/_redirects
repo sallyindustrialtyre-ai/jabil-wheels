@@ -1,3 +1,8 @@
+# --- 预览域名 301 到正式域名（2026-11-15 添加）---
+# 作用：*.netlify.app 预览域仍在对外服务，会与 corerims.com 形成重复内容；
+# 整体 301 到主域，避免权重分散，并让预览域历史收录自然清退。
+https://jabil-wheels.netlify.app/*  https://corerims.com/:splat  301!
+# --- 以下为原有产品 URL 规范化重定向 ---
 / /en/ 302
 /en/products/reference-steel-wheel-rim-size-25-15-00-3-0-for-matching-tire-size-21-0-25-for-crane/ /en/products/25-15-00-3-0-construction-reference-wheel/ 301!
 /es/products/reference-steel-wheel-rim-size-25-15-00-3-0-for-matching-tire-size-21-0-25-for-crane/ /es/products/25-15-00-3-0-construction-reference-wheel/ 301!

@@ -4,3 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # 正式域名：构建时会把站点源码中的占位域名统一替换为此域名的 origin
+  # （影响 canonical、hreflang、sitemap、robots 等）。未设置时会回落到 Netlify 生产 URL，
+  # 导致 SEO 信号全部指向 *.netlify.app，正式域名无法被正确索引。
+  SITE_URL = "https://corerims.com"
