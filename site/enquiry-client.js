@@ -3,6 +3,8 @@ const forms=[...document.querySelectorAll('[data-enquiry-form]')];
 const language=document.documentElement.lang?.slice(0,2)||'en';
 const dataPromise=Promise.all([fetch('/product-models.json').then(r=>r.json()),fetch('/upgrade-language.json').then(r=>r.json())]);
 const html=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// GA4 事件埋点：表单为 fetch 异步提交、页面不跳转，若无此事件 GA4 无法记录询盘转化
+const track=(name,params)=>{try{if(typeof gtag==='function')gtag('event',name,params)}catch{}};
 dataPromise.then(([models,translations])=>{
  const t=translations[language]||translations.en;
  const read=()=>{try{return JSON.parse(localStorage.getItem('jabil-wheel-enquiry')||'[]')}catch{return []}};
@@ -29,7 +31,7 @@ for(const f of forms){
  try{const [models]=await dataPromise;const data=new FormData(f);const files=[1,2,3].map(i=>data.get('attachment'+i)).filter(x=>x&&x.size);if(files.reduce((n,f)=>n+f.size,0)>7*1024*1024)throw Error({en:'Attachments must total 7 MB or less.',es:'Los archivos deben sumar 7 MB como máximo.',ru:'Общий размер файлов: не более 7 МБ.'}[language]||'Attachments must total 7 MB or less.');for(const file of files)if(!/\.(pdf|jpe?g|png|webp|xlsx|csv)$/i.test(file.name))throw Error('Use PDF, JPG, PNG, WebP, XLSX or CSV.');
  const basket=JSON.parse(f.dataset.products||localStorage.getItem('jabil-wheel-enquiry')||'[]');const requestId=f.dataset.requestId ||=crypto.randomUUID();data.set('form-name','wheel-enquiry');data.set('requestId',requestId);data.set('consent',f.elements.consent.checked?'yes':'');data.set('products',JSON.stringify(basket));data.set('productSummary',basket.map(x=>{const m=models.find(m=>m.id===x.id||m.variants.some(v=>v.id===x.id));return x.id+' | '+(m?.name||'')+' | Quantity: '+x.quantity}).join('\n'));data.set('sourcePage',location.href);data.set('language',language);
  for(const key of ['attachment1','attachment2','attachment3'])if(!data.get(key)?.size)data.delete(key);
- const response=await fetch('/__forms.html',{method:'POST',body:data});if(!response.ok)throw Error('Unable to submit (HTTP '+response.status+'). Please contact info@jabiltyre.com.');status.textContent=({en:'Thank you. Your enquiry has been submitted. Tracking reference: ',es:'Gracias. Consulta enviada. Referencia de seguimiento: ',ru:'Спасибо. Запрос отправлен. Код для обращения: '}[language]||'Submitted. Tracking reference: ')+requestId;f.querySelectorAll('input,textarea,select,button').forEach(x=>x.disabled=true);localStorage.removeItem('jabil-wheel-enquiry');document.dispatchEvent(new CustomEvent('enquiry-basket-updated'));
+ const response=await fetch('/__forms.html',{method:'POST',body:data});if(!response.ok)throw Error('Unable to submit (HTTP '+response.status+'). Please contact info@jabiltyre.com.');status.textContent=({en:'Thank you. Your enquiry has been submitted. Tracking reference: ',es:'Gracias. Consulta enviada. Referencia de seguimiento: ',ru:'Спасибо. Запрос отправлен. Код для обращения: '}[language]||'Submitted. Tracking reference: ')+requestId;f.querySelectorAll('input,textarea,select,button').forEach(x=>x.disabled=true);localStorage.removeItem('jabil-wheel-enquiry');document.dispatchEvent(new CustomEvent('enquiry-basket-updated'));track('generate_lead',{form_name:'wheel-enquiry',language:language,product_count:basket.reduce((n,x)=>n+(Number(x.quantity)||0),0),transaction_id:requestId});
  }catch(error){status.textContent=error.message;button.disabled=false;}
  });
 }
