@@ -15,6 +15,13 @@ const copyTree = (src, dest) => {
     else throw Error('Unsupported source entry');
   }
 };
+// 先清空 dist，避免上一次构建的残留文件被一起部署上线。
+// 注意：某些本机环境（带回收站拦截）会拒绝删除，此时降级为警告，不影响构建。
+try {
+  fs.rmSync(output, { recursive: true, force: true });
+} catch (e) {
+  console.warn('dist cleanup skipped: ' + e.message);
+}
 copyTree('site', output);
 
 const walk = (d) =>
